@@ -17,9 +17,9 @@ const Menu = new Lang.Class({
     _event_handler_ids: [],
 
     _init: function() {
-    	let menuAlignment = 0.5;
-    	this.parent(menuAlignment);
-    	this._layout = new St.BoxLayout();
+    	  let menuAlignment = 0.5;
+    	  this.parent(menuAlignment);
+    	  this._layout = new St.BoxLayout();
         this._settings = Convenience.getSettings();
         this.available_meters = [PrefsKeys.CPU_METER, PrefsKeys.MEMORY_METER, PrefsKeys.STORAGE_METER, PrefsKeys.NETWORK_METER, PrefsKeys.SWAP_METER, PrefsKeys.LOAD_METER];
 
@@ -35,9 +35,12 @@ const Menu = new Lang.Class({
             this._addSettingChangedHandler(type);
         }
 
-    	this.actor.add_actor(this._layout);
+    	  this.actor.add_actor(this._layout);
 
-    	Panel.addToStatusArea('system-monitor', this, 1, 'center');
+        this._addIndicatorToTopBar(this._settings.get_string(PrefsKeys.POSITION));
+    },
+    _addIndicatorToTopBar: function(position) {
+        Panel.addToStatusArea('system-monitor', this, 1, position);
     },
     _createIcon: function(type) {
         let icon = FactoryModule.AbstractFactory.create('icon', type);
@@ -69,6 +72,11 @@ const Menu = new Lang.Class({
                 this._destroyIcon(type);
                 this._destroyMeterWidget(type);
             }
+        }));
+        this._event_handler_ids.push(event_id);
+
+        event_id = this._settings.connect('changed::position', Lang.bind(this, function(settings, key) {
+            this._addIndicatorToTopBar(settings.get_string(PrefsKeys.POSITION));
         }));
         this._event_handler_ids.push(event_id);
     },
